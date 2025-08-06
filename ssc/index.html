@@ -1,0 +1,67 @@
+ component gwl_DCmotor_simscape
+% Seperately Excited DC Motor  :3.0 : fixed
+% modified by Gamini Liyadipitiya, April 2020. 
+% Provides an interface between the electrical and mechanical rotational
+% domains. If the current and voltage through and across the electrical
+% ports are I and V, and the torque and angular speed through and across
+% the mechanical ports are T and w, then
+%
+%   T = K*I
+%
+%   V = I*Ra+ La*(dI/dT)+K*w (Back emf)
+%
+% where parameter K is the Constant of proportionality, also 
+% depends on the field excitation, with equivalent
+% units of Nm/A or V/(rad/s). Both the torque and back emf equations
+% having the same value of K in SI unit.  A lossy electromechanical
+% energy conversion is taken place as the Armature Reistance is included
+% in the model
+% If the current I from the electrical + to - ports is positive, then
+% the resulting torque is positive acting from the mechanical C to R ports.
+% This direction can be altered by using a negative value for K.
+
+% Copyright 2005-2013 The MathWorks, Inc.
+
+nodes
+    p = foundation.electrical.electrical; % +:top
+    n = foundation.electrical.electrical; % -:bottom
+    R = foundation.mechanical.rotational.rotational; % R:top
+    C = foundation.mechanical.rotational.rotational; % C:bottom
+  
+ end
+    
+
+inputs
+    K = {1.022, 'V/(rad/s)' }; % Field,A:bottom
+    % K is proportional to Field current 
+end  
+
+variables
+    i = { 0, 'A' };     % Current
+    v = { 0, 'V' };     % Voltage
+    t = { 0, 'N*m' };   % Torque
+    w = { 0, 'rad/s' }; % Angular velocity
+end
+    parameters    
+    Ra={0.2,'Ohm'}; % Armature Resistance, Ra
+    La={0.002,'H'};% Arm. Leakage inductance, La
+    end 
+   
+
+branches
+    i : p.i -> n.i;
+    t : R.t -> C.t;
+   
+end
+
+equations
+    v == p.v - n.v;
+    w == R.w - C.w;
+    
+  
+    
+    v == i*Ra + La*i.der+ K*w;
+    t == -K*i;
+end
+
+end
